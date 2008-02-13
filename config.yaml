@@ -1,0 +1,11 @@
+name: Collate
+id:   Collate
+key:  Collate
+description: Collect sets of template output to sort by a particular datum.
+author_name: Mark Paschal
+author_link: http://markpasc.org/mark/
+version: 1.0
+tags:
+    block:
+        Collate:     $Collate::Collate::Plugin::tag_collate
+        CollateItem: $Collate::Collate::Plugin::tag_collate_item
