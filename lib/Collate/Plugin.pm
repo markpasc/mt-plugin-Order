@@ -17,14 +17,17 @@ sub tag_collate {
               :                                    'descend'
               ;
 
-    my @objs = 
-        map { $_->[1] }
-        sort {
+    my @objs = $args->{natural}
+        ? sort {
             $a->[0] =~ m{ \A [+-]? \d+ }xms && $b->[0] =~ m{ \A [+-]? \d+ }xms
                 ?    $a->[0] <=>    $b->[0]
                 : lc $a->[0] cmp lc $b->[0]
-        } @items;
-    return join q{}, ($order eq 'ascend' ? @objs : reverse @objs);
+          } @items
+        : sort { lc $a->[0] cmp lc $b->[0] } @items
+        ;
+    @objs = map { $_->[1] } @objs;
+    @objs = reverse @objs if $order eq 'descend';
+    return join q{}, @objs;
 }
 
 sub tag_collate_item {
