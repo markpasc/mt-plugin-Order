@@ -12,13 +12,19 @@ sub tag_collate {
     $builder->build($ctx, $tokens, $args)
         or return $ctx->error($builder->errstr);
 
-    return join q{},
+    my $order = !$args->{sort_order}             ? 'descend'
+              :  $args->{sort_order} eq 'ascend' ? 'ascend'
+              :                                    'descend'
+              ;
+
+    my @objs = 
         map { $_->[1] }
         sort {
             $a->[0] =~ m{ \A [+-]? \d+ }xms && $b->[0] =~ m{ \A [+-]? \d+ }xms
                 ?    $a->[0] <=>    $b->[0]
                 : lc $a->[0] cmp lc $b->[0]
         } @items;
+    return join q{}, ($order eq 'ascend' ? @objs : reverse @objs);
 }
 
 sub tag_collate_item {
