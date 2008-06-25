@@ -9,5 +9,3 @@ tags:
     block:
         Order:       $Order::Order::Plugin::tag_order
         OrderItem:   $Order::Order::Plugin::tag_order_item
-        Collate:     $Order::Order::Plugin::tag_order
-        CollateItem: $Order::Order::Plugin::tag_order_item
