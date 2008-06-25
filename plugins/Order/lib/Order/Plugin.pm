@@ -41,7 +41,12 @@ sub tag_order_item {
         or return $ctx->error($builder->errstr);
 
     my $order_value = $ctx->var($order_var);
-    $order_value = q{} if !defined $order_value;
+    if (defined $order_value) {
+        $order_value =~ s{ \A \s+ | \s+ \z }{}xmsg;
+    }
+    else {
+        $order_value = q{};
+    }
 
     push @{ $ctx->{__stash}{order_items} }, [ $order_value, $output ];
 }
