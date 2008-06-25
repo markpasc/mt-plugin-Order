@@ -1,12 +1,12 @@
 
-package Collate::Plugin;
+package Order::Plugin;
 
-sub tag_collate {
+sub tag_order {
     my ($ctx, $args, $cond) = @_;
 
     my @items;
-    local $ctx->{__stash}{collate_items} = \@items;
-    local $ctx->{__stash}{collate_by_var} = $args->{by} || 'collate_by';
+    local $ctx->{__stash}{order_items} = \@items;
+    local $ctx->{__stash}{order_by_var} = $args->{by} || 'order_by';
 
     my ($builder, $tokens) = map { $ctx->stash($_) } qw( builder tokens );
     $builder->build($ctx, $tokens, $args)
@@ -30,20 +30,20 @@ sub tag_collate {
     return join q{}, @objs;
 }
 
-sub tag_collate_item {
+sub tag_order_item {
     my ($ctx, $args, $cond) = @_;
 
-    my $collate_var = $ctx->stash('collate_by_var');
-    local $ctx->{__stash}{vars}{$collate_var};
+    my $order_var = $ctx->stash('order_by_var');
+    local $ctx->{__stash}{vars}{$order_var};
 
     my ($builder, $tokens) = map { $ctx->stash($_) } qw( builder tokens );
     my $output = $builder->build($ctx, $tokens, $args)
         or return $ctx->error($builder->errstr);
 
-    my $collate_value = $ctx->var($collate_var);
-    $collate_value = q{} if !defined $collate_value;
+    my $order_value = $ctx->var($order_var);
+    $order_value = q{} if !defined $order_value;
 
-    push @{ $ctx->{__stash}{collate_items} }, [ $collate_value, $output ];
+    push @{ $ctx->{__stash}{order_items} }, [ $order_value, $output ];
 }
 
 1;
