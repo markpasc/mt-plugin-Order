@@ -1,11 +1,13 @@
-name: Collate
-id:   Collate
-key:  Collate
-description: Collect sets of template output to sort by a particular datum.
+name: Order
+id:   Order
+key:  Order
+description: Collect sets of template output to order by a particular datum.
 author_name: Mark Paschal
 author_link: http://markpasc.org/mark/
 version: 1.0
 tags:
     block:
-        Collate:     $Collate::Collate::Plugin::tag_collate
-        CollateItem: $Collate::Collate::Plugin::tag_collate_item
+        Order:       $Order::Order::Plugin::tag_order
+        OrderItem:   $Order::Order::Plugin::tag_order_item
+        Collate:     $Order::Order::Plugin::tag_order
+        CollateItem: $Order::Order::Plugin::tag_order_item

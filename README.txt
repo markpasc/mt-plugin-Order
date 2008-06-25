@@ -1,66 +1,67 @@
-#############################################################
-This is a placeholder README.
-If you are the author, please fill in the __sections__ below.
-If you are not the author, please bug the author.
-#############################################################
+Order 1.0 for Movable Type
 
-## __PLUGINNAME__, a plugin for Movable Type
-## Author: __AUTHORNAME__, __EMAIL/URL__
-## Version: __VERSION__
-## Released under __LICENSE__
-##
-## $Id$
- 
-## OVERVIEW ##
-
-__A short and very basic description of the plugin.__
-
-## PREREQUISITES ##
-
-__detail MT version compatibility and anything else the plugin requires__
-
-## FEATURES ##
-
-__A longer description of the plugin's features for those who are still reading__
-
-## INSTALLATION ##
-
-__detail installation instructions__
-
-## CONFIGURATION ##
-
-__detail configuration instructions, if any__
-
-## USAGE ##
-
-__detail further usage instructions, if any__
-
-## KNOWN ISSUES ##
-
-__detail any known issues with current version, if any__
-
-## SUPPORT ##
-
-__specify where people can go for support__
-
-## SOURCE CODE ##
-
-Source
-
-SVN Repo:
-    http://code.sixapart.com/svn/mtplugins/trunk/__PLUGINNAME__
-
-Trac View:
-    http://code.sixapart.com/trac/mtplugins/log/trunk/__PLUGINNAME_
-
-Plugins:
-    http://plugins.movabletype.org/__PLUGIN__
+Collect sets of template output to order by a particular datum.
 
 
-## LICENSE ##
+INSTALLATION
 
-__specify the license the plugin is released under__
+Unarchive into your Movable Type directory.
 
-## AUTHOR ##
 
-__insert arbitrary author info, e.g name, email, URL, company, etc__
+USAGE
+
+Use the provided template tags to collect and reorder template content. For
+example:
+
+    <mt:Order>
+
+        <mt:Entries>
+            <mt:OrderItem>
+                <mt:setvarblock name="order_by">
+                    <mt:EntryDate utc="1" format="%Y%m%d%H%M%S">
+                </mt:setvarblock>
+                <mt:Include module="Entry">
+            </mt:OrderItem>
+        </mt:Entries>
+
+        <mt:Comments>
+            <mt:OrderItem>
+                <mt:setvarblock name="order_by">
+                    <mt:CommentDate utc="1" format="%Y%m%d%H%M%S">
+                </mt:setvarblock>
+                <mt:Include module="Comment">
+            </mt:OrderItem>
+        </mt:Comments>
+    
+    </mt:Order>
+
+
+LICENSE
+
+Copyright 2008 Six Apart, Ltd.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the Six Apart, Ltd. nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
