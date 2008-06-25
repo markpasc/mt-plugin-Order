@@ -11,6 +11,3 @@
 # packages
 \.zip$
 \.tar\.gz$
-
-# ASTest plugin
-^plugins/ASTest
