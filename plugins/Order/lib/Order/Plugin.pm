@@ -27,6 +27,13 @@ sub tag_order {
         ;
     @objs = map { $_->[1] } @objs;
     @objs = reverse @objs if $order eq 'descend';
+    
+    if (my $limit = ($args->{lastn} || $args->{limit})) {
+        if (scalar @objs > $limit) {
+            @objs = @objs[0..$limit-1];
+        }
+    }
+    
     return join q{}, @objs;
 }
 
