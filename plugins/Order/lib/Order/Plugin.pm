@@ -17,14 +17,22 @@ sub tag_order {
               :                                    'descend'
               ;
 
-    my @objs = $args->{natural}
-        ? sort {
-            $a->[0] =~ m{ \A [+-]? \d+ }xms && $b->[0] =~ m{ \A [+-]? \d+ }xms
-                ?    $a->[0] <=>    $b->[0]
-                : lc $a->[0] cmp lc $b->[0]
-          } @items
-        : sort { lc $a->[0] cmp lc $b->[0] } @items
-        ;
+    my @objs;
+    if ($args->{natural}) {
+        @objs = sort {
+          $a->[0] =~ m{ \A [+-]? \d+ }xms && $b->[0] =~ m{ \A [+-]? \d+ }xms
+              ?    $a->[0] <=>    $b->[0]
+              : lc $a->[0] cmp lc $b->[0]
+        } @items;
+    }
+    elsif ($args->{shuffle}) {
+        require List::Util;
+        @objs = List::Util::shuffle(@items);
+    }
+    else {
+        @objs = sort { lc $a->[0] cmp lc $b->[0] } @items;
+    }
+
     @objs = map { $_->[1] } @objs;
     @objs = reverse @objs if $order eq 'descend';
     
