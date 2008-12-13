@@ -15,6 +15,10 @@ example:
 
     <mt:Order>
 
+        <mt:OrderHeader>
+            <div class="site-activity">
+        </mt:OrderHeader>
+
         <mt:Entries>
             <mt:OrderItem>
                 <mt:setvarblock name="order_by">
@@ -33,21 +37,48 @@ example:
             </mt:OrderItem>
         </mt:Comments>
     
+        <mt:OrderFooter>
+            </div>
+        </mt:OrderFooter>
+
     </mt:Order>
 
-ATTRIBUTES
+TAGS
+
+    * mt:Order
+    
+    * mt:OrderItem
+    
+    * mt:OrderHeader
+    
+    * mt:OrderFooter
+
+TAG ATTRIBUTES
 
     The mt:Order tag takes the following optional attributes:
     
     *   sort_order
-    *   natural
-    *   shuffle
-    *   by
-    *   lastn or limit
+        Valid values are "ascend" and "descend" 
+
+    *   natural - Turns on natural sorting which is adaptive
+          to the content being ordered.  This is useful, for
+          example, if you're trying to achieve a numeric sort
+          instead of an alphabetic sort.
+        
+    *   shuffle - Orders items randomly. The exact opposite of
+          order we'll note.  Indeed, chaos from Order.
+
+    *   by - ?????
+
+    *   lastn or limit - Limits the number of post-order list
+          items published to the first N where N is the value
+          of the attribute.
     
     The mt:OrderItem tag takes the following optional attribute:
     
-    *   pin
+    *   pin - This attribute allows you to inject an item directly
+          at a specific ordinal spot (such as 0 for first, 5 to
+          become item #6, or -1 for last) 
     
     (While use of the above should be obvious, a better description
     will hopefully be provided by the plugin author...)
