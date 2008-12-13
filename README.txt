@@ -35,6 +35,22 @@ example:
     
     </mt:Order>
 
+ATTRIBUTES
+
+    The mt:Order tag takes the following optional attributes:
+    
+    *   sort_order
+    *   natural
+    *   shuffle
+    *   by
+    *   lastn or limit
+    
+    The mt:OrderItem tag takes the following optional attribute:
+    
+    *   pin
+    
+    (While use of the above should be obvious, a better description
+    will hopefully be provided by the plugin author...)
 
 LICENSE
 
