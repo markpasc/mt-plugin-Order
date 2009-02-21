@@ -64,6 +64,16 @@ If set to `ascend`, reorders the content from first to last (that is, 1 to 9
 and A to Z). Otherwise, the items are sorted in descending order (Z to A and 9
 to 1).
 
+#### `limit` ####
+
+Specifies how many `mt:OrderItem`s to show. That is, after reordering all the
+`mt:OrderItem` tags, discard all but this many items.
+
+#### `offset` ####
+
+Specifies a number of `mt:OrderItem`s to skip. That is, after reordering all
+the `mt:OrderItem` tags, discard this many items from the front of the list.
+
 #### `natural` ####
 
 If set to `1`, sorting values that look like numbers will be sorted
@@ -80,16 +90,6 @@ If set to `1`, reorder the items randomly instead of using the sorting values.
 When using this attribute, you can safely omit the `natural`, `sort_order`,
 and `by` attributes, and you need not set sorting values inside your
 `mt:OrderItem` tags.
-
-#### `offset` ####
-
-Specifies a number of `mt:OrderItem`s to skip. That is, after reordering all
-the `mt:OrderItem` tags, discard this many items from the front of the list.
-
-#### `limit` ####
-
-Specifies how many `mt:OrderItem`s to show. That is, after reordering all the
-`mt:OrderItem` tags, discard all but this many items.
 
 #### `by` ####
 
