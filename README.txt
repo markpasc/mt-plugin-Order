@@ -64,15 +64,16 @@ If set to `ascend`, reorders the content from first to last (that is, 1 to 9
 and A to Z). Otherwise, the items are sorted in descending order (Z to A and 9
 to 1).
 
-#### `limit` ####
-
-Specifies how many `mt:OrderItem`s to show. That is, after reordering all the
-`mt:OrderItem` tags, discard all but this many items.
-
 #### `offset` ####
 
 Specifies a number of `mt:OrderItem`s to skip. That is, after reordering all
 the `mt:OrderItem` tags, discard this many items from the front of the list.
+
+#### `limit` ####
+
+Specifies how many `mt:OrderItem`s to show. That is, after reordering all the
+`mt:OrderItem` tags (and discarding items due to `offset`), keep only this
+many items from the front of the list.
 
 #### `natural` ####
 
@@ -87,9 +88,10 @@ if they're numbers, specify `natural="1"`.
 #### `shuffle` ####
 
 If set to `1`, reorder the items randomly instead of using the sorting values.
+
 When using this attribute, you can safely omit the `natural`, `sort_order`,
 and `by` attributes, and you need not set sorting values inside your
-`mt:OrderItem` tags.
+`mt:OrderItem` tags. `mt:OrderItem pin` attributes are still honored, however.
 
 #### `by` ####
 
@@ -127,12 +129,18 @@ negative numbers: writing `mt:OrderItem pin="-1"` is almost like using the
 
 If multiple `mt:OrderItem`s have the same `pin` value, those items will be
 reordered based on their `order_by` values, then spliced into the full set of
-items at the specified `pin` point as a contiguous tranche.
+items at the specified `pin` point as a contiguous tranche. Pinned groups are
+inserted from left to right (`0` to `-1`), so groups with multiple items may
+overlap with groups pinned nearby. For example, if there are four items pinned
+at `0` and one item pinned at `1`, in the final reckoning three of the items
+pinned at `0` will appear *after* the item at `1`: by the time the item at `1`
+is finally pinned, the other items pinned at `0` have already become items #1,
+#2, and #3.
 
 Pinned items are put in position *before* the `mt:Order` tag's `limit`
-attribute is considered. That is, if you are sorting 11 items, pin one to
-`-1` (last), and use `limit="10"` on the `mt:Order` tag, the pinned item will
-*not* be shown (it was the eleventh of ten items).
+attribute is considered. That is, if you order 11 items, pin one to `-1`
+(last), and use `limit="10"` on the `mt:Order` tag, the pinned item will *not*
+be shown (it was the eleventh of ten items).
 
 
 ### `mt:OrderHeader` ###
