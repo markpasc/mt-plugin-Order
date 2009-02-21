@@ -71,6 +71,9 @@ sub tag_order {
     # Inject the pinned groups from first place (0) to last (-1).
     for my $i (sort _sort_group_ids keys %groups) {
         my $items = $groups{$i};
+        # TODO: sort and join the group, so it splices as one item, disrupting
+        # the next groups less? but then they only count as one item for
+        # offsets and limits.
         if ($i >= 0) {
             splice @objs, $i, 0, $sort->(@$items);
         }
