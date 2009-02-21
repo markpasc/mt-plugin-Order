@@ -88,9 +88,15 @@ sub tag_order {
     # Collapse the transform.
     @objs = map { $_->[1] } @objs;
 
+    if (my $offset = $args->{offset}) {
+        # Delete the first $offset items.
+        splice @objs, 0, $offset;
+    }
+
     if (my $limit = ($args->{lastn} || $args->{limit})) {
         if (scalar @objs > $limit) {
-            @objs = @objs[0..$limit-1];
+            # Keep the first $limit items.
+            splice @objs, $limit;
         }
     }
 

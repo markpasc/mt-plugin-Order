@@ -81,6 +81,11 @@ When using this attribute, you can safely omit the `natural`, `sort_order`,
 and `by` attributes, and you need not set sorting values inside your
 `mt:OrderItem` tags.
 
+#### `offset` ####
+
+Specifies a number of `mt:OrderItem`s to skip. That is, after reordering all
+the `mt:OrderItem` tags, discard this many items from the front of the list.
+
 #### `limit` ####
 
 Specifies how many `mt:OrderItem`s to show. That is, after reordering all the
