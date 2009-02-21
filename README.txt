@@ -1,4 +1,4 @@
-# Order 1.0 for Movable Type #
+# Order 1.1 for Movable Type #
 
 Collect sets of template output to order by a particular datum.
 
@@ -148,9 +148,22 @@ Content from an `mt:OrderFooter` is shown after the last `mt:OrderItem`, or
 even an `mt:OrderItem` pinned to the end with the `pin="-1"` attribute.
 
 
+## Changes ##
+
+### 1.1  in development ###
+
+* Added `mt:OrderHeader` and `mt:OrderFooter` tags.
+* Added `shuffle` ordering option.
+* Added `pin` feature.
+
+### 1.0  30 July 2008 ###
+
+* First release
+
+
 ## License ##
 
-Copyright 2008 Six Apart, Ltd.
+Copyright 2008-2009 Six Apart, Ltd.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
