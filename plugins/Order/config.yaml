@@ -1,0 +1,14 @@
+name: Order
+id:   Order
+key:  Order
+description: Collect sets of template output to order by a particular datum.
+author_name: Mark Paschal
+author_link: http://markpasc.org/mark/
+plugin_link: http://plugins.movabletype.org/order/
+version: 1.1
+tags:
+    block:
+        Order:       $Order::Order::Plugin::tag_order
+        OrderItem:   $Order::Order::Plugin::tag_order_item
+        OrderHeader: $Order::Order::Plugin::tag_order_header
+        OrderFooter: $Order::Order::Plugin::tag_order_footer
