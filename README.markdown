@@ -1,4 +1,4 @@
-# Order 1.1 for Movable Type #
+# Order 1.2 for Movable Type #
 
 Collect sets of template output to order by a particular datum.
 
@@ -12,6 +12,8 @@ Unarchive into your Movable Type directory.
 
 Use the provided template tags to collect and reorder template content. For
 example:
+
+UPDATE THIS EXAMPLE TO USE DATEHEADER/FOOTER
 
     <mt:Order>
 
@@ -113,7 +115,7 @@ set inside the `mt:OrderItem` tag. Set the `order_by` variable by using the
 `mt:SetVarBlock` tag or the `setvar="variable name"` global attribute on a tag
 inside the `mt:OrderItem`.
 
-`mt:OrderItem` has one optional attribute:
+`mt:OrderItem` has two optional attributes:
 
 ### `pin` ###
 
@@ -157,13 +159,32 @@ even an `mt:OrderItem` pinned to the front with the `pin="0"` attribute.
 Contains template content that is displayed at the end of the `mt:Order` loop,
 as long as there are `mt:OrderItem`s to display.
 
-Content from an `mt:OrderFooter` is shown after the last `mt:OrderItem`, or
+Content from an `mt:OrderFooter` is shown after the last `mt:OrderItem`,
 even an `mt:OrderItem` pinned to the end with the `pin="-1"` attribute.
+
+
+## `mt:OrderDateHeader` ##
+
+A container tag whose contents will be displayed before the `mt:OrderItem` in context
+if it is the first item for a given day. Requires `order_by` variable set inside the 
+`mt:OrderItem` tag to be an `iso8601` timestamp, formatted `%Y-%m-%dT%H:%M:%SZ`.
+
+
+## `mt:OrderDateFooter` ##
+
+A container tag whose contents will be displayed after the `mt:OrderItem` in context
+if it is the last item for a given day. Requires `order_by` variable set inside the 
+`mt:OrderItem` tag to be an `iso8601` timestamp, formatted `%Y-%m-%dT%H:%M:%SZ`.
 
 
 # Changes #
 
-## 1.1  in development ##
+## 1.2 10 May 2011 ##
+
+* Added `unique` ordering option.
+
+
+## 1.1  10 June 2010 ##
 
 * Added `mt:OrderHeader` and `mt:OrderFooter` tags.
 * Added `shuffle` ordering option.

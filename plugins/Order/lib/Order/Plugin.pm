@@ -52,7 +52,7 @@ sub _sort_group_ids {
 
 sub tag_order {
     my ($ctx, $args, $cond) = @_;
-
+    
     my %groups = ( items => [] );
     local $ctx->{__stash}{order_items}  = \%groups;
     local $ctx->{__stash}{order_by_var} = $args->{by} || 'order_by';
@@ -67,7 +67,7 @@ sub tag_order {
     my $items = delete $groups{items};
     my $sort = sort_function_for_args($args);
     my @objs = $sort->(@$items);
-
+    
     # Inject the pinned groups from first place (0) to last (-1).
     for my $i (sort _sort_group_ids keys %groups) {
         my $items = $groups{$i};
@@ -84,7 +84,13 @@ sub tag_order {
             push @objs, $sort->(@$items);
         }
     }
-
+    
+    # Mark said to put header/footer logic here, but I put further down
+    # so limiting and offsets could be taken care of first. We don't want
+    # to break styles dependent on the header and footer being in place.
+    
+    # But now I realize we lost the date information by the collapse...
+    
     # Collapse the transform.
     @objs = map { $_->[1] } @objs;
 
@@ -98,6 +104,28 @@ sub tag_order {
             # Keep the first $limit items.
             splice @objs, $limit;
         }
+    }
+
+    # $objs[x] is OrderItem content
+
+    # loop over items in @objs adding headers and footers where necessary
+    if ($ctx->stash('order_date_header') || $ctx->stash('order_date_footer')) {
+      MT::log("$#objs");
+      MT::log($objs[0]); MT::log($objs[1]); MT::log($objs[2]); 
+      
+      my $current_date; # hold date to compare against
+      
+      if ($ctx->stash('order_date_header')) {
+        # I don't know how to properly slurp() on the next line to get it to
+        # use the current order item's context.
+        # unshift(@objs, $ctx->stash('order_date_header'));
+      }
+      
+    }
+
+    {
+      my $debug6 = 1;
+      MT::log('Order plugin ran at '.scalar localtime()) if ($debug6);
     }
 
     return q{} if !@objs;
@@ -121,9 +149,21 @@ sub tag_order_footer {
     return q{};
 }
 
+sub tag_order_date_header {
+    my ($ctx, $args, $cond) = @_;
+    $ctx->stash('order_date_header', $ctx->stash('tokens'));
+    return q{};
+}
+
+sub tag_order_date_footer {
+    my ($ctx, $args, $cond) = @_;
+    $ctx->stash('order_date_footer', $ctx->stash('tokens'));
+    return q{};
+}
+
 sub tag_order_item {
     my ($ctx, $args, $cond) = @_;
-
+    
     my $group_id = defined $args->{pin} ? int $args->{pin} : 'items';
 
     my $order_var = $ctx->stash('order_by_var');
@@ -133,10 +173,13 @@ sub tag_order_item {
 
     my $order_value = $ctx->var($order_var) || q{};
     $order_value =~ s{ \A \s+ | \s+ \z }{}xmsg;
-
+    
+    my $is_unique = defined $args->{unique} ? true : false;
+    
     my $groups = $ctx->stash('order_items');
     my $group = ($groups->{$group_id} ||= []);
-    push @$group, [ $order_value, $output ];
+    push @$group, [ $order_value, $output, $is_unique ];
+        
 }
 
 1;
