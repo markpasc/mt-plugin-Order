@@ -85,15 +85,6 @@ sub tag_order {
         }
     }
     
-    # Mark said to put header/footer logic here, but I put further down
-    # so limiting and offsets could be taken care of first. We don't want
-    # to break styles dependent on the header and footer being in place.
-    
-    # But now I realize we lost the date information by the collapse...
-    
-    # Collapse the transform.
-    @objs = map { $_->[1] } @objs;
-
     if (my $offset = $args->{offset}) {
         # Delete the first $offset items.
         splice @objs, 0, $offset;
@@ -106,22 +97,54 @@ sub tag_order {
         }
     }
 
-    # $objs[x] is OrderItem content
+    # $objs[x][0] is YYYYMMDDhhmmss
+    # $objs[x][1] is OrderItem content
+    # $objs[x][2] is 0||1
 
-    # loop over items in @objs adding headers and footers where necessary
     if ($ctx->stash('order_date_header') || $ctx->stash('order_date_footer')) {
-      MT::log("$#objs");
-      MT::log($objs[0]); MT::log($objs[1]); MT::log($objs[2]); 
-      
-      my $current_date; # hold date to compare against
-      
-      if ($ctx->stash('order_date_header')) {
-        # I don't know how to properly slurp() on the next line to get it to
-        # use the current order item's context.
-        # unshift(@objs, $ctx->stash('order_date_header'));
+      # loop over items in @objs adding headers and footers where necessary
+      my ($yesterday, $tomorrow) = ('00000000')x2;
+      my $i = 0;
+      for my $o (@objs) {
+        my $today    = substr $o->[0], 0, 8;
+        my $tomorrow = $today;
+        my $footer   = 0;
+        if (defined $objs[$i+1]) {
+          $tomorrow = substr($objs[$i+1]->[0], 0, 8);
+          $footer = $today ne $tomorrow;
+        } else {
+          $footer++;
+        }
+        my $header = $today ne $yesterday;
+        $ctx->{current_timestamp} = $o->[0];
+        my ($h_html, $f_html) = ('')x2;
+        if ($header && $ctx->stash('order_date_header')) {
+          $h_html = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_header'), {});
+        }
+        if ($footer && $ctx->stash('order_date_footer')) {
+          $f_html = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_footer'), {});
+        }
+        
+        MT::log("$h_html ### $f_html");
+        $yesterday = $today;
+        $i++;
       }
-      
     }
+
+#sub slurp {
+#    my ( $ctx, $args, $cond ) = @_;
+#    my $tokens = $ctx->stash('tokens');
+#    return '' unless $tokens;
+#    my $result = $ctx->stash('builder')->build( $ctx, $tokens, $cond );
+#    return $ctx->error( $ctx->stash('builder')->errstr )
+#      unless defined $result;
+#    return $result;
+#}
+
+
+
+    # Collapse the transform.
+    @objs = map { $_->[1] } @objs;
 
     {
       my $debug6 = 1;
@@ -174,7 +197,7 @@ sub tag_order_item {
     my $order_value = $ctx->var($order_var) || q{};
     $order_value =~ s{ \A \s+ | \s+ \z }{}xmsg;
     
-    my $is_unique = defined $args->{unique} ? true : false;
+    my $is_unique = defined $args->{unique} ? 1 : 0;
     
     my $groups = $ctx->stash('order_items');
     my $group = ($groups->{$group_id} ||= []);
