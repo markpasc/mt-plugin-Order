@@ -21,7 +21,7 @@ example, to show the last 30 unique entries and ActionStreams items:
 
         <mt:OrderDateHeader>
             <div id="one_day">	
-                <p class="date"><mt:Date utc="1" format="%B %e, %Y"></p>
+                <p class="date"><mt:OrderDate utc="1" format="%B %e, %Y"></p>
         </mt:OrderDateHeader>
 
         <mt:OrderDateFooter>
@@ -190,11 +190,18 @@ if it is the last item for a given day. Requires `order_by` variable set inside 
 `mt:OrderItem` tag to be a timestamp formatted `%Y%m%d%H%M%S`.
 
 
+## `mt:OrderDate` ##
+
+A function tag that works like an `mt:Date` tag, for use within `mt:OrderDateHeader`
+and `mt:OrderDateFooter` blocks.
+
+
 # Changes #
 
 ## 1.2 10 May 2011 ##
 
 * Added `mt:OrderDateHeader` and `mt:OrderDateFooter` tags.
+* Added `mt:OrderDate` tag.
 * Added `unique` ordering option.
 
 

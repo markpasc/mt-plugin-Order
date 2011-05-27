@@ -85,15 +85,17 @@ sub tag_order {
         }
     }
     
-    # Remove nonunique items if specified
-    # Unique if unique order_key+first 18 chars of item
-    # TODO: don't trigger this block if no unique flags set
-    {
+    my $test_unique = 0;
+    for my $obj (@objs) {
+        $test_unique = 1 if $obj->[2];
+    }
+    if ($test_unique) {
+        use Digest::MD5 qw(md5_base64);
         my $j = 0;
         my %used;
         for my $obj (@objs) {
             if ($obj->[2]) {
-                my $hash = $obj->[0].substr($obj->[1],0,18);
+                my $hash = md5_base64($obj->[0].$obj->[1]);
                 splice (@objs, $j, 1) if exists $used{$hash};
                 $used{$hash}++;
             }
@@ -113,12 +115,9 @@ sub tag_order {
         }
     }
 
-    # $objs[x][0] is YYYYMMDDhhmmss
-    # $objs[x][1] is OrderItem content
-    # $objs[x][2] is 0||1
-
     if ($ctx->stash('order_date_header') || $ctx->stash('order_date_footer')) {
         # loop over items in @objs adding headers and footers where necessary
+        my $builder = $ctx->stash('builder');
         my ($yesterday, $tomorrow) = ('00000000')x2;
         my $i = 0;
         for my $o (@objs) {
@@ -133,20 +132,18 @@ sub tag_order {
             }
             my $header = $today ne $yesterday;
             $ctx->{current_timestamp} = $o->[0];
-            # $args->{ts} = $o->[0]; # TROUBLESHOOTING DATE CONTEXT
             my ($h_html, $f_html) = ('')x2;
             if ($header && $ctx->stash('order_date_header')) {
-                my $result = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_header'), {});
-                return $ctx->error( $ctx->stash('builder')->errstr ) unless defined $result;
+                my $result = $builder->build($ctx, $ctx->stash('order_date_header'), {});
+                return $ctx->error( $builder->errstr ) unless defined $result;
                 $h_html = $result;
             }
             if ($footer && $ctx->stash('order_date_footer')) {
-                my $result = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_footer'), {});
-                return $ctx->error( $ctx->stash('builder')->errstr ) unless defined $result;
+                my $result = $builder->build($ctx, $ctx->stash('order_date_footer'), {});
+                return $ctx->error( $builder->errstr ) unless defined $result;
                 $f_html = $result;
             }
             $objs[$i][1] = $h_html.$o->[1].$f_html;        
-MT::log("(".$h_html.") BODY (".$f_html.")");
             $yesterday = $today;
             $i++;
         }
