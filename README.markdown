@@ -11,18 +11,25 @@ Unarchive into your Movable Type directory.
 # Usage #
 
 Use the provided template tags to collect and reorder template content. For
-example:
+example, to show the last 30 unique entries and ActionStreams items:
 
-UPDATE THIS EXAMPLE TO USE DATEHEADER/FOOTER
-
-    <mt:Order>
+    <mt:Order limit="30">
 
         <mt:OrderHeader>
             <div class="site-activity">
         </mt:OrderHeader>
 
-        <mt:Entries>
-            <mt:OrderItem>
+        <mt:OrderDateHeader>
+            <div id="one_day">	
+                <p class="date"><mt:Date utc="1" format="%B %e, %Y"></p>
+        </mt:OrderDateHeader>
+
+        <mt:OrderDateFooter>
+            </div>
+        </mt:OrderDateFooter>
+
+        <mt:Entries lastn="30">
+            <mt:OrderItem unique="1">
                 <mt:setvarblock name="order_by">
                     <mt:EntryDate utc="1" format="%Y%m%d%H%M%S">
                 </mt:setvarblock>
@@ -30,15 +37,15 @@ UPDATE THIS EXAMPLE TO USE DATEHEADER/FOOTER
             </mt:OrderItem>
         </mt:Entries>
 
-        <mt:Comments>
-            <mt:OrderItem>
+        <mt:ActionStreams limit="30">
+            <mt:OrderItem unique="1">
                 <mt:setvarblock name="order_by">
-                    <mt:CommentDate utc="1" format="%Y%m%d%H%M%S">
+                    <$mt:StreamActionDate format="%Y%m%d%H%M%S"$>
                 </mt:setvarblock>
-                <mt:Include module="Comment">
+                <p><a href="<mt:StreamActionURL escape="html">"><img src="/img/icons/<mt:var name="service_type">_16.png" width="12" height="12"></a> <a href="<mt:StreamActionURL escape="html">" class="actionlink"><mt:StreamActionTitle></a></p>
             </mt:OrderItem>
-        </mt:Comments>
-    
+        </mt:ActionStreams>
+  
         <mt:OrderFooter>
             </div>
         </mt:OrderFooter>
@@ -144,6 +151,12 @@ attribute is considered. That is, if you order 11 items, pin one to `-1`
 (last), and use `limit="10"` on the `mt:Order` tag, the pinned item will *not*
 be shown (it was the eleventh of ten items).
 
+### `unique` ###
+
+In cases where two or more `mt:OrderItem`s have the same `order_by` value, the
+same first 18 characters of content and the attribute `unique` set to the value
+`1`, all duplicate `mt:OrderItem`s are removed.
+
 
 ## `mt:OrderHeader` ##
 
@@ -167,20 +180,21 @@ even an `mt:OrderItem` pinned to the end with the `pin="-1"` attribute.
 
 A container tag whose contents will be displayed before the `mt:OrderItem` in context
 if it is the first item for a given day. Requires `order_by` variable set inside the 
-`mt:OrderItem` tag to be an `iso8601` timestamp, formatted `%Y-%m-%dT%H:%M:%SZ`.
+`mt:OrderItem` tag to be a timestamp formatted `%Y%m%d%H%M%S`.
 
 
 ## `mt:OrderDateFooter` ##
 
 A container tag whose contents will be displayed after the `mt:OrderItem` in context
 if it is the last item for a given day. Requires `order_by` variable set inside the 
-`mt:OrderItem` tag to be an `iso8601` timestamp, formatted `%Y-%m-%dT%H:%M:%SZ`.
+`mt:OrderItem` tag to be a timestamp formatted `%Y%m%d%H%M%S`.
 
 
 # Changes #
 
 ## 1.2 10 May 2011 ##
 
+* Added `mt:OrderDateHeader` and `mt:OrderDateFooter` tags.
 * Added `unique` ordering option.
 
 

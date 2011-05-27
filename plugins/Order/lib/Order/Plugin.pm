@@ -85,6 +85,22 @@ sub tag_order {
         }
     }
     
+    # Remove nonunique items if specified
+    # Unique if unique order_key+first 18 chars of item
+    # TODO: don't trigger this block if no unique flags set
+    {
+        my $j = 0;
+        my %used;
+        for my $obj (@objs) {
+            if ($obj->[2]) {
+                my $hash = $obj->[0].substr($obj->[1],0,18);
+                splice (@objs, $j, 1) if exists $used{$hash};
+                $used{$hash}++;
+            }
+            $j++;
+        }
+    }
+    
     if (my $offset = $args->{offset}) {
         # Delete the first $offset items.
         splice @objs, 0, $offset;
@@ -102,54 +118,42 @@ sub tag_order {
     # $objs[x][2] is 0||1
 
     if ($ctx->stash('order_date_header') || $ctx->stash('order_date_footer')) {
-      # loop over items in @objs adding headers and footers where necessary
-      my ($yesterday, $tomorrow) = ('00000000')x2;
-      my $i = 0;
-      for my $o (@objs) {
-        my $today    = substr $o->[0], 0, 8;
-        my $tomorrow = $today;
-        my $footer   = 0;
-        if (defined $objs[$i+1]) {
-          $tomorrow = substr($objs[$i+1]->[0], 0, 8);
-          $footer = $today ne $tomorrow;
-        } else {
-          $footer++;
+        # loop over items in @objs adding headers and footers where necessary
+        my ($yesterday, $tomorrow) = ('00000000')x2;
+        my $i = 0;
+        for my $o (@objs) {
+            my $today    = substr $o->[0], 0, 8;
+            my $tomorrow = $today;
+            my $footer   = 0;
+            if (defined $objs[$i+1]) {
+                $tomorrow = substr($objs[$i+1]->[0], 0, 8);
+                $footer = $today ne $tomorrow;
+            } else {
+                $footer++;
+            }
+            my $header = $today ne $yesterday;
+            $ctx->{current_timestamp} = $o->[0];
+            # $args->{ts} = $o->[0]; # TROUBLESHOOTING DATE CONTEXT
+            my ($h_html, $f_html) = ('')x2;
+            if ($header && $ctx->stash('order_date_header')) {
+                my $result = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_header'), {});
+                return $ctx->error( $ctx->stash('builder')->errstr ) unless defined $result;
+                $h_html = $result;
+            }
+            if ($footer && $ctx->stash('order_date_footer')) {
+                my $result = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_footer'), {});
+                return $ctx->error( $ctx->stash('builder')->errstr ) unless defined $result;
+                $f_html = $result;
+            }
+            $objs[$i][1] = $h_html.$o->[1].$f_html;        
+MT::log("(".$h_html.") BODY (".$f_html.")");
+            $yesterday = $today;
+            $i++;
         }
-        my $header = $today ne $yesterday;
-        $ctx->{current_timestamp} = $o->[0];
-        my ($h_html, $f_html) = ('')x2;
-        if ($header && $ctx->stash('order_date_header')) {
-          $h_html = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_header'), {});
-        }
-        if ($footer && $ctx->stash('order_date_footer')) {
-          $f_html = $ctx->stash('builder')->build($ctx, $ctx->stash('order_date_footer'), {});
-        }
-        
-        MT::log("$h_html ### $f_html");
-        $yesterday = $today;
-        $i++;
-      }
     }
-
-#sub slurp {
-#    my ( $ctx, $args, $cond ) = @_;
-#    my $tokens = $ctx->stash('tokens');
-#    return '' unless $tokens;
-#    my $result = $ctx->stash('builder')->build( $ctx, $tokens, $cond );
-#    return $ctx->error( $ctx->stash('builder')->errstr )
-#      unless defined $result;
-#    return $result;
-#}
-
-
 
     # Collapse the transform.
     @objs = map { $_->[1] } @objs;
-
-    {
-      my $debug6 = 1;
-      MT::log('Order plugin ran at '.scalar localtime()) if ($debug6);
-    }
 
     return q{} if !@objs;
     return join q{}, $ctx->stash('order_header'), @objs,
@@ -197,7 +201,10 @@ sub tag_order_item {
     my $order_value = $ctx->var($order_var) || q{};
     $order_value =~ s{ \A \s+ | \s+ \z }{}xmsg;
     
-    my $is_unique = defined $args->{unique} ? 1 : 0;
+    my $is_unique = 0;
+    if (defined $args->{unique} && $args->{unique}) {
+        $is_unique = 1;
+    }
     
     my $groups = $ctx->stash('order_items');
     my $group = ($groups->{$group_id} ||= []);
@@ -206,4 +213,3 @@ sub tag_order_item {
 }
 
 1;
-
