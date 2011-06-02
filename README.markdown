@@ -29,8 +29,8 @@ example, to show the last 30 unique entries and ActionStreams items:
         </mt:OrderDateFooter>
 
         <mt:Entries lastn="30">
-            <mt:OrderItem unique="1">
-                <mt:setvarblock name="order_by">
+            <mt:OrderItem>
+                <mt:setvarblock name="order_by" strip_linefeeds="1" trim="1">
                     <mt:EntryDate utc="1" format="%Y%m%d%H%M%S">
                 </mt:setvarblock>
                 <mt:Include module="Entry">
@@ -38,14 +38,18 @@ example, to show the last 30 unique entries and ActionStreams items:
         </mt:Entries>
 
         <mt:ActionStreams limit="30">
-            <mt:OrderItem unique="1">
-                <mt:setvarblock name="order_by">
-                    <$mt:StreamActionDate format="%Y%m%d%H%M%S"$>
-                </mt:setvarblock>
-                <p><a href="<mt:StreamActionURL escape="html">"><img src="/img/icons/<mt:var name="service_type">_16.png" width="12" height="12"></a> <a href="<mt:StreamActionURL escape="html">" class="actionlink"><mt:StreamActionTitle></a></p>
-            </mt:OrderItem>
+            <mt:setvarblock name="actionurl"><mt:StreamActionURL escape="html"></mt:setvarblock>
+            <mt:If name="actionurl" like="mysite.com">
+            <mt:Else>
+                <mt:OrderItem>
+                    <mt:setvarblock name="order_by" strip_linefeeds="1" trim="1">
+                        <$mt:StreamActionDate format="%Y%m%d%H%M%S"$>
+                    </mt:setvarblock>
+                    <p><a href="<mt:StreamActionURL escape="html">"><img src="/img/icons/<mt:var name="service_type">_16.png" width="12" height="12"></a> <a href="<mt:StreamActionURL escape="html">" class="actionlink"><mt:StreamActionTitle></a></p>
+                </mt:OrderItem>
+            </mt:If>
         </mt:ActionStreams>
-  
+
         <mt:OrderFooter>
             </div>
         </mt:OrderFooter>
@@ -150,12 +154,6 @@ Pinned items are put in position *before* the `mt:Order` tag's `limit`
 attribute is considered. That is, if you order 11 items, pin one to `-1`
 (last), and use `limit="10"` on the `mt:Order` tag, the pinned item will *not*
 be shown (it was the eleventh of ten items).
-
-### `unique` ###
-
-In cases where two or more `mt:OrderItem`s have the same `order_by` value, the
-same first 18 characters of content and the attribute `unique` set to the value
-`1`, all duplicate `mt:OrderItem`s are removed.
 
 
 ## `mt:OrderHeader` ##

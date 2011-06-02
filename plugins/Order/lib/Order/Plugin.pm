@@ -84,25 +84,7 @@ sub tag_order {
             push @objs, $sort->(@$items);
         }
     }
-    
-    my $test_unique = 0;
-    for my $obj (@objs) {
-        $test_unique = 1 if $obj->[2];
-    }
-    if ($test_unique) {
-        use Digest::MD5 qw(md5_base64);
-        my $j = 0;
-        my %used;
-        for my $obj (@objs) {
-            if ($obj->[2]) {
-                my $hash = md5_base64($obj->[0].$obj->[1]);
-                splice (@objs, $j, 1) if exists $used{$hash};
-                $used{$hash}++;
-            }
-            $j++;
-        }
-    }
-    
+        
     if (my $offset = $args->{offset}) {
         # Delete the first $offset items.
         splice @objs, 0, $offset;
@@ -131,7 +113,7 @@ sub tag_order {
                 $footer++;
             }
             my $header = $today ne $yesterday;
-            $ctx->{current_timestamp} = $o->[0];
+            local $ctx->{current_timestamp} = $o->[0];
             my ($h_html, $f_html) = ('')x2;
             if ($header && $ctx->stash('order_date_header')) {
                 my $result = $builder->build($ctx, $ctx->stash('order_date_header'), {});
@@ -198,14 +180,9 @@ sub tag_order_item {
     my $order_value = $ctx->var($order_var) || q{};
     $order_value =~ s{ \A \s+ | \s+ \z }{}xmsg;
     
-    my $is_unique = 0;
-    if (defined $args->{unique} && $args->{unique}) {
-        $is_unique = 1;
-    }
-    
     my $groups = $ctx->stash('order_items');
     my $group = ($groups->{$group_id} ||= []);
-    push @$group, [ $order_value, $output, $is_unique ];
+    push @$group, [ $order_value, $output];
         
 }
 
