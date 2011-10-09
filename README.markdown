@@ -20,8 +20,8 @@ example, to show the last 30 unique entries and ActionStreams items:
         </mt:OrderHeader>
 
         <mt:OrderDateHeader>
-            <div id="one_day">	
-                <p class="date"><mt:OrderDate utc="1" format="%B %e, %Y"></p>
+            <div id="one_day">
+                <p class="date"><mt:OrderDate format="%B %e, %Y"></p>
         </mt:OrderDateHeader>
 
         <mt:OrderDateFooter>
@@ -177,21 +177,22 @@ even an `mt:OrderItem` pinned to the end with the `pin="-1"` attribute.
 ## `mt:OrderDateHeader` ##
 
 A container tag whose contents will be displayed before the `mt:OrderItem` in context
-if it is the first item for a given day. Requires `order_by` variable set inside the 
+if it is the first item for a given day. Requires `order_by` variable set inside the
 `mt:OrderItem` tag to be a timestamp formatted `%Y%m%d%H%M%S`.
 
 
 ## `mt:OrderDateFooter` ##
 
 A container tag whose contents will be displayed after the `mt:OrderItem` in context
-if it is the last item for a given day. Requires `order_by` variable set inside the 
+if it is the last item for a given day. Requires `order_by` variable set inside the
 `mt:OrderItem` tag to be a timestamp formatted `%Y%m%d%H%M%S`.
 
 
 ## `mt:OrderDate` ##
 
 A function tag that works like an `mt:Date` tag, for use within `mt:OrderDateHeader`
-and `mt:OrderDateFooter` blocks.
+and `mt:OrderDateFooter` blocks. Does not take a `utc` attribute or support the
+`relative` option of the `format` attribute.
 
 
 # Changes #
@@ -200,8 +201,6 @@ and `mt:OrderDateFooter` blocks.
 
 * Added `mt:OrderDateHeader` and `mt:OrderDateFooter` tags.
 * Added `mt:OrderDate` tag.
-* Added `unique` ordering option.
-
 
 ## 1.1  10 June 2010 ##
 

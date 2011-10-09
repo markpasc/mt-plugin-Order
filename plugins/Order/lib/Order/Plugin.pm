@@ -1,5 +1,6 @@
-
 package Order::Plugin;
+
+use MT::Util qw(format_ts); # Required by _hdlr_order_date() below
 
 sub _natural_sort {
     sort {
@@ -52,7 +53,7 @@ sub _sort_group_ids {
 
 sub tag_order {
     my ($ctx, $args, $cond) = @_;
-    
+
     my %groups = ( items => [] );
     local $ctx->{__stash}{order_items}  = \%groups;
     local $ctx->{__stash}{order_by_var} = $args->{by} || 'order_by';
@@ -67,7 +68,7 @@ sub tag_order {
     my $items = delete $groups{items};
     my $sort = sort_function_for_args($args);
     my @objs = $sort->(@$items);
-    
+
     # Inject the pinned groups from first place (0) to last (-1).
     for my $i (sort _sort_group_ids keys %groups) {
         my $items = $groups{$i};
@@ -84,7 +85,7 @@ sub tag_order {
             push @objs, $sort->(@$items);
         }
     }
-        
+
     if (my $offset = $args->{offset}) {
         # Delete the first $offset items.
         splice @objs, 0, $offset;
@@ -125,7 +126,7 @@ sub tag_order {
                 return $ctx->error( $builder->errstr ) unless defined $result;
                 $f_html = $result;
             }
-            $objs[$i][1] = $h_html.$o->[1].$f_html;        
+            $objs[$i][1] = $h_html.$o->[1].$f_html;
             $yesterday = $today;
             $i++;
         }
@@ -169,7 +170,7 @@ sub tag_order_date_footer {
 
 sub tag_order_item {
     my ($ctx, $args, $cond) = @_;
-    
+
     my $group_id = defined $args->{pin} ? int $args->{pin} : 'items';
 
     my $order_var = $ctx->stash('order_by_var');
@@ -179,11 +180,67 @@ sub tag_order_item {
 
     my $order_value = $ctx->var($order_var) || q{};
     $order_value =~ s{ \A \s+ | \s+ \z }{}xmsg;
-    
+
     my $groups = $ctx->stash('order_items');
     my $group = ($groups->{$group_id} ||= []);
     push @$group, [ $order_value, $output];
-        
+}
+
+sub _hdlr_order_date {
+    ## This was taken from the Melody project's source code at
+    ## https://github.com/openmelody/melody/blob/master/lib/MT/Template/ContextHandlers.pm#L11358
+    ## Code to handle relative dates and the UTC attribute were removed
+    ## Any bugs found in that code likely will need to be fixed here as well
+    my ( $ctx, $args ) = @_;
+    my $ts = $args->{ts} || $ctx->{current_timestamp};
+    my $tag = $ctx->stash('tag');
+    return
+      $ctx->error(
+           MT->translate(
+                        "You used an [_1] tag without a date context set up.",
+                        "MT$tag"
+           )
+      ) unless defined $ts;
+    my $blog = $ctx->stash('blog');
+    unless ( ref $blog ) {
+        my $blog_id = $blog || $args->{offset_blog_id};
+        if ($blog_id) {
+            $blog = MT->model('blog')->load($blog_id);
+            return $ctx->error(
+                        MT->translate( 'Can\'t load blog #[_1].', $blog_id ) )
+              unless $blog;
+        }
+    }
+    my $lang
+      = $args->{language}
+      || $ctx->var('local_lang_id')
+      || ( $blog && $blog->language );
+    if ( my $format = lc( $args->{format_name} || '' ) ) {
+        my $tz = 'Z';
+        my $so = ( $blog && $blog->server_offset )
+          || MT->config->TimeOffset;
+        my $partial_hour_offset = 60 * abs( $so - int($so) );
+        if ( $format eq 'rfc822' ) {
+            $tz = sprintf( "%s%02d%02d",
+                           $so < 0 ? '-' : '+',
+                           abs($so), $partial_hour_offset );
+        }
+        elsif ( $format eq 'iso8601' ) {
+            $tz = sprintf( "%s%02d:%02d",
+                           $so < 0 ? '-' : '+',
+                           abs($so), $partial_hour_offset );
+        }
+        if ( $format eq 'rfc822' ) {
+            ## RFC-822 dates must be in English.
+            $args->{'format'} = '%a, %d %b %Y %H:%M:%S ' . $tz;
+            $lang = 'en';
+        }
+        elsif ( $format eq 'iso8601' ) {
+            $args->{format} = '%Y-%m-%dT%H:%M:%S' . $tz;
+        }
+    } ## end if ( my $format = lc( ...))
+    my $mail_flag = $args->{mail} || 0;
+    return format_ts( $args->{'format'}, $ts, $blog, $lang, $mail_flag );
 }
 
 1;

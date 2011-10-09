@@ -15,4 +15,4 @@ tags:
         OrderDateHeader: $Order::Order::Plugin::tag_order_date_header
         OrderDateFooter: $Order::Order::Plugin::tag_order_date_footer
     function:
-        OrderDate: $Core::MT::Template::Context::_hdlr_date
+        OrderDate: $Order::Order::Plugin::_hdlr_order_date
