@@ -126,7 +126,7 @@ set inside the `mt:OrderItem` tag. Set the `order_by` variable by using the
 `mt:SetVarBlock` tag or the `setvar="variable name"` global attribute on a tag
 inside the `mt:OrderItem`.
 
-`mt:OrderItem` has two optional attributes:
+`mt:OrderItem` has one optional attribute:
 
 ### `pin` ###
 
@@ -196,7 +196,7 @@ and `mt:OrderDateFooter` blocks. Does not take a `utc` attribute.
 
 # Changes #
 
-## 1.2 10 May 2011 ##
+## 1.2 10 October 2011 ##
 
 * Added `mt:OrderDateHeader` and `mt:OrderDateFooter` tags.
 * Added `mt:OrderDate` tag.
