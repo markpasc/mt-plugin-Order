@@ -191,8 +191,7 @@ if it is the last item for a given day. Requires `order_by` variable set inside 
 ## `mt:OrderDate` ##
 
 A function tag that works like an `mt:Date` tag, for use within `mt:OrderDateHeader`
-and `mt:OrderDateFooter` blocks. Does not take a `utc` attribute or support the
-`relative` option of the `format` attribute.
+and `mt:OrderDateFooter` blocks. Does not take a `utc` attribute.
 
 
 # Changes #

@@ -1,7 +1,5 @@
 package Order::Plugin;
 
-use MT::Util qw(format_ts); # Required by _hdlr_order_date() below
-
 sub _natural_sort {
     sort {
         $a->[0] =~ m{ \A [+-]? \d+ }xms && $b->[0] =~ m{ \A [+-]? \d+ }xms
@@ -187,60 +185,14 @@ sub tag_order_item {
 }
 
 sub _hdlr_order_date {
-    ## This was taken from the Melody project's source code at
-    ## https://github.com/openmelody/melody/blob/master/lib/MT/Template/ContextHandlers.pm#L11358
-    ## Code to handle relative dates and the UTC attribute were removed
-    ## Any bugs found in that code likely will need to be fixed here as well
-    my ( $ctx, $args ) = @_;
-    my $ts = $args->{ts} || $ctx->{current_timestamp};
-    my $tag = $ctx->stash('tag');
-    return
-      $ctx->error(
-           MT->translate(
-                        "You used an [_1] tag without a date context set up.",
-                        "MT$tag"
-           )
-      ) unless defined $ts;
-    my $blog = $ctx->stash('blog');
-    unless ( ref $blog ) {
-        my $blog_id = $blog || $args->{offset_blog_id};
-        if ($blog_id) {
-            $blog = MT->model('blog')->load($blog_id);
-            return $ctx->error(
-                        MT->translate( 'Can\'t load blog #[_1].', $blog_id ) )
-              unless $blog;
-        }
+    my ($ctx, $args) = @_;
+    # Order dates are already UTC (or at least shouldn't be messed with after ordering).
+    if ($args->{utc}) {
+        my $tag = $ctx->stash('tag');
+        return $ctx->error(qq{The mt:$tag doesn't support a utc attribute: items were already ordered by these dates, so can't readjust them for UTC after the fact.});
     }
-    my $lang
-      = $args->{language}
-      || $ctx->var('local_lang_id')
-      || ( $blog && $blog->language );
-    if ( my $format = lc( $args->{format_name} || '' ) ) {
-        my $tz = 'Z';
-        my $so = ( $blog && $blog->server_offset )
-          || MT->config->TimeOffset;
-        my $partial_hour_offset = 60 * abs( $so - int($so) );
-        if ( $format eq 'rfc822' ) {
-            $tz = sprintf( "%s%02d%02d",
-                           $so < 0 ? '-' : '+',
-                           abs($so), $partial_hour_offset );
-        }
-        elsif ( $format eq 'iso8601' ) {
-            $tz = sprintf( "%s%02d:%02d",
-                           $so < 0 ? '-' : '+',
-                           abs($so), $partial_hour_offset );
-        }
-        if ( $format eq 'rfc822' ) {
-            ## RFC-822 dates must be in English.
-            $args->{'format'} = '%a, %d %b %Y %H:%M:%S ' . $tz;
-            $lang = 'en';
-        }
-        elsif ( $format eq 'iso8601' ) {
-            $args->{format} = '%Y-%m-%dT%H:%M:%S' . $tz;
-        }
-    } ## end if ( my $format = lc( ...))
-    my $mail_flag = $args->{mail} || 0;
-    return format_ts( $args->{'format'}, $ts, $blog, $lang, $mail_flag );
+    return $ctx->_hdlr_date($args);
 }
+
 
 1;
