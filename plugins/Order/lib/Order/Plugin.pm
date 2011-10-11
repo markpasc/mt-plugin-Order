@@ -1,4 +1,3 @@
-
 package Order::Plugin;
 
 sub _natural_sort {
@@ -85,9 +84,6 @@ sub tag_order {
         }
     }
 
-    # Collapse the transform.
-    @objs = map { $_->[1] } @objs;
-
     if (my $offset = $args->{offset}) {
         # Delete the first $offset items.
         splice @objs, 0, $offset;
@@ -99,6 +95,43 @@ sub tag_order {
             splice @objs, $limit;
         }
     }
+
+    if ($ctx->stash('order_date_header') || $ctx->stash('order_date_footer')) {
+        # loop over items in @objs adding headers and footers where necessary
+        my $builder = $ctx->stash('builder');
+        my ($yesterday, $tomorrow) = ('00000000')x2;
+        my $i = 0;
+        for my $o (@objs) {
+            my $today    = substr $o->[0], 0, 8;
+            my $tomorrow = $today;
+            my $footer   = 0;
+            if (defined $objs[$i+1]) {
+                $tomorrow = substr($objs[$i+1]->[0], 0, 8);
+                $footer = $today ne $tomorrow;
+            } else {
+                $footer++;
+            }
+            my $header = $today ne $yesterday;
+            local $ctx->{current_timestamp} = $o->[0];
+            my ($h_html, $f_html) = ('')x2;
+            if ($header && $ctx->stash('order_date_header')) {
+                my $result = $builder->build($ctx, $ctx->stash('order_date_header'), {});
+                return $ctx->error( $builder->errstr ) unless defined $result;
+                $h_html = $result;
+            }
+            if ($footer && $ctx->stash('order_date_footer')) {
+                my $result = $builder->build($ctx, $ctx->stash('order_date_footer'), {});
+                return $ctx->error( $builder->errstr ) unless defined $result;
+                $f_html = $result;
+            }
+            $objs[$i][1] = $h_html.$o->[1].$f_html;
+            $yesterday = $today;
+            $i++;
+        }
+    }
+
+    # Collapse the transform.
+    @objs = map { $_->[1] } @objs;
 
     return q{} if !@objs;
     return join q{}, $ctx->stash('order_header'), @objs,
@@ -121,6 +154,18 @@ sub tag_order_footer {
     return q{};
 }
 
+sub tag_order_date_header {
+    my ($ctx, $args, $cond) = @_;
+    $ctx->stash('order_date_header', $ctx->stash('tokens'));
+    return q{};
+}
+
+sub tag_order_date_footer {
+    my ($ctx, $args, $cond) = @_;
+    $ctx->stash('order_date_footer', $ctx->stash('tokens'));
+    return q{};
+}
+
 sub tag_order_item {
     my ($ctx, $args, $cond) = @_;
 
@@ -136,8 +181,18 @@ sub tag_order_item {
 
     my $groups = $ctx->stash('order_items');
     my $group = ($groups->{$group_id} ||= []);
-    push @$group, [ $order_value, $output ];
+    push @$group, [ $order_value, $output];
 }
 
-1;
+sub _hdlr_order_date {
+    my ($ctx, $args) = @_;
+    # Order dates are already UTC (or at least shouldn't be messed with after ordering).
+    if ($args->{utc}) {
+        my $tag = $ctx->stash('tag');
+        return $ctx->error(qq{The mt:$tag doesn't support a utc attribute: items were already ordered by these dates, so can't readjust them for UTC after the fact.});
+    }
+    return $ctx->_hdlr_date($args);
+}
 
+
+1;
