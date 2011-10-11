@@ -196,7 +196,7 @@ and `mt:OrderDateFooter` blocks. Does not take a `utc` attribute.
 
 # Changes #
 
-## 1.2 10 May 2011 ##
+## 1.2 10 October 2011 ##
 
 * Added `mt:OrderDateHeader` and `mt:OrderDateFooter` tags.
 * Added `mt:OrderDate` tag.
