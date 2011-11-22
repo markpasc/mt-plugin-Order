@@ -242,7 +242,7 @@ if it is the last item for a given row. Requires `items_per_row` integer attribu
 
 # Changes #
 
-## 1.3 10 November 2011 ##
+## 1.3 22 November 2011 ##
 
 * Added `itens_per_row` attribute to the `mt:Order` tag.
 * Added `mt:OrderRowHeader` and `mt:OrderRowFooter` tags.
