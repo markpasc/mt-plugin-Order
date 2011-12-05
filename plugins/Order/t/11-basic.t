@@ -8,7 +8,7 @@ use MT::Template::Context;
 use MT::Builder;
 use MT::App;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use Order::Plugin;
 
@@ -66,6 +66,26 @@ $t = <<EOF;
 </mt:Order>
 EOF
 like(build($t), qr{ \A \s* goodbye \s+ hello \s* \z }xms, "Order puts two items in order");
+
+$t = <<EOF;
+<mt:Order>
+    <mt:OrderItem>
+        <mt:setvarblock name="order_by">bar</mt:setvarblock>
+        hello
+    </mt:OrderItem>
+    <mt:OrderFooter>
+        farewell
+    </mt:OrderFooter>
+    <mt:OrderItem>
+        <mt:setvarblock name="order_by">foo</mt:setvarblock>
+        goodbye
+    </mt:OrderItem>
+    <mt:OrderHeader>
+        hi
+    </mt:OrderHeader>
+</mt:Order>
+EOF
+like(build($t), qr{ \A \s* hi \s+ goodbye \s+ hello \s+ farewell \s* \z }xms, "Order puts two items in order");
 
 $t = <<EOF;
 <mt:Order>
