@@ -8,7 +8,7 @@ use MT::Template::Context;
 use MT::Builder;
 use MT::App;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use Order::Plugin;
 
@@ -43,6 +43,18 @@ like(build($t), qr{ \A \s* hello \s* \z }xms, "Order works at all (one item)");
 
 $t = <<EOF;
 <mt:Order>
+    asf dasf
+    <mt:OrderItem>
+        <mt:setvarblock name="order_by">1</mt:setvarblock>
+        hello
+    </mt:OrderItem>
+    foo bar baz
+</mt:Order>
+EOF
+like(build($t), qr{ \A \s* hello \s* \z }xms, "Order ignores content not in items");
+
+$t = <<EOF;
+<mt:Order>
     <mt:OrderItem>
         <mt:setvarblock name="order_by">bar</mt:setvarblock>
         hello
@@ -66,5 +78,6 @@ $t = <<EOF;
 </mt:Order>
 EOF
 like(build($t), qr{ \A \s* 9 \s+ 8 \s+ 7 \s+ 6 \s+ 5 \s* \z }xms, "Order puts looped items in order");
+
 
 1;
