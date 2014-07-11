@@ -57,6 +57,8 @@ sub tag_order {
     local $ctx->{__stash}{order_by_var} = $args->{by} || 'order_by';
     local $ctx->{__stash}{order_header} = q{};
     local $ctx->{__stash}{order_footer} = q{};
+    local $ctx->{__stash}{order_row_header} = q{};
+    local $ctx->{__stash}{order_row_footer} = q{};
 
     # Build, but ignore the full build value.
     defined($ctx->slurp($args, $cond))
@@ -133,6 +135,24 @@ sub tag_order {
     # Collapse the transform.
     @objs = map { $_->[1] } @objs;
 
+    # Insert the row header and footers
+    my $per_row = $args->{'items_per_row'} || 0;
+    if ($per_row) {
+        my $order_row_header = $ctx->stash('order_row_header') || '';
+        my $order_row_footer = $ctx->stash('order_row_footer') || '';
+        $in_position = $per_row - 1;
+        my $row_count = 0;
+        my $total_count = @objs;
+        my $insert = $order_row_footer . $order_row_header;
+        while ($in_position < $total_count - 1) {
+            @objs = array_insert_after_position ( \@objs, $in_position, $insert);
+            $in_position += $per_row + 1;
+            $total_count += 1;
+        }
+        unshift(@objs,$order_row_header) if ($order_row_header);
+        push(@objs,$order_row_footer) if ($order_row_footer);
+    }
+
     return q{} if !@objs;
     return join q{}, $ctx->stash('order_header'), @objs,
         $ctx->stash('order_footer');
@@ -164,6 +184,40 @@ sub tag_order_date_footer {
     my ($ctx, $args, $cond) = @_;
     $ctx->stash('order_date_footer', $ctx->stash('tokens'));
     return q{};
+}
+
+sub tag_order_row_header {
+    my ($ctx, $args, $cond) = @_;
+    my $output = $ctx->slurp($args, $cond)
+        or return;
+    $ctx->stash('order_row_header', $output);
+    return q{};
+}
+
+sub tag_order_row_footer {
+    my ($ctx, $args, $cond) = @_;
+    my $output = $ctx->slurp($args, $cond)
+        or return;
+    $ctx->stash('order_row_footer', $output);
+    return q{};
+}
+
+# insert element into an arbitrary position of an array
+sub array_insert_after_position {
+    my ($inArray, $inPosition, $inElement) = @_;
+    my @res         = ();
+    my @after       = ();
+    my $arrayLength = int @{$inArray};
+
+    if ($inPosition < 0) { @after = @{$inArray}; }
+    else {
+        if ($inPosition >= $arrayLength)    { $inPosition = $arrayLength - 1; }
+        if ($inPosition < $arrayLength - 1) { @after = @{$inArray}[($inPosition+1)..($arrayLength-1)]; }
+    }
+
+    push (@res, @{$inArray}[0..$inPosition], $inElement, @after);
+
+    return @res;
 }
 
 sub tag_order_item {

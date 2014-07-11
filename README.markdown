@@ -18,7 +18,7 @@ example, to show the last 30 unique entries and ActionStreams items:
         <mt:OrderHeader>
             <div class="site-activity">
         </mt:OrderHeader>
-
+        
         <mt:OrderDateHeader>
             <div id="one_day">
                 <p class="date"><mt:OrderDate format="%B %e, %Y"></p>
@@ -56,6 +56,33 @@ example, to show the last 30 unique entries and ActionStreams items:
 
     </mt:Order>
 
+Another example illustrating handling of rows: An image gallery, ordered by the asset label, with a header and footer for each row of 3.
+
+    <mt:Order sort_order="ascend" items_per_row="3">
+        <mt:OrderRowHeader>
+            <div class="gallery">
+        </mt:OrderRowHeader>
+
+    	  <mt:OrderRowFooter>
+    	      </div>
+    	  </mt:OrderRowFooter>
+
+        <mt:Assets type="image" tag="$gallery_tag">
+            <mt:OrderItem>
+
+                <mt:setvarblock name="order_by">
+                    <$mt:AssetLabel$>
+                </mt:setvarblock>
+  
+                <dl>
+                    <dt><img src="<$mt:AssetThumbnailURL width="144"$>" /></dt>
+                    <dt><$mt:AssetLabel$></dt>
+    	              <dd>
+    	                  <$mt:AssetDescription convert_breaks="0" filters="__default__"$>
+    	              </dd>
+    	          </dl>
+            </mt:OrderItem></mt:Assets>
+    </mt:Order>
 
 # Template tags #
 
@@ -194,7 +221,31 @@ A function tag that works like an `mt:Date` tag, for use within `mt:OrderDateHea
 and `mt:OrderDateFooter` blocks. Does not take a `utc` attribute.
 
 
+## `items_per_row` ##
+
+This attribute of `mt:Order`sets how many iterations the Assets tag publishes before setting
+the state that enables the `mt:OrderRowHeader` and `mt:OrderRowFooter` tags.
+
+
+## `mt:OrderRowHeader` ##
+
+A container tag whose contents will be displayed before the `mt:OrderItem` in context
+if it is the first item for a given row. Requires `items_per_row` integer attribute set inside the
+`mt:Order` tag.
+
+
+## `mt:OrderRowFooter` ##
+
+A container tag whose contents will be displayed after the `mt:OrderItem` in context
+if it is the last item for a given row. Requires `items_per_row` integer attribute set inside the
+`mt:Order` tag.
+
 # Changes #
+
+## 1.3 22 November 2011 ##
+
+* Added `itens_per_row` attribute to the `mt:Order` tag.
+* Added `mt:OrderRowHeader` and `mt:OrderRowFooter` tags.
 
 ## 1.2 10 October 2011 ##
 
